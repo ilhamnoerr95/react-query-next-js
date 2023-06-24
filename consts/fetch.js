@@ -27,7 +27,7 @@ export const updatePost = async (params)=> {
 }
 
 export const fetchUrl = async (params)=> {
-    const url = `https://swapi.dev/api/species/?page=${params}`
-    const response = await fetch(url)
+    // const url = `https://swapi.dev/api/species/?page=${params}`
+    const response = await fetch(params)
     return response.json()
 }

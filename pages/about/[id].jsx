@@ -24,26 +24,25 @@ const router = useRouter()
         ],
         mutationFn:(id)=> fetchDelete({id})
     })
+    let url = "https://swapi.dev/api/species/"
     const {
         status,
-        data,
-        error,
+        data:species,
         isFetching,
         isFetchingNextPage,
-        isFetchingPreviousPage,
         fetchNextPage,
-        fetchPreviousPage,
         hasNextPage,
+        isFetchingPreviousPage,
+        error,
+        fetchPreviousPage,
         hasPreviousPage,
-      } = useInfiniteQuery(
-        ['projects'],
-        async ({ pageParam = 0 }) => { fetchUrl(pageParam)
-        },
-        {
-          getPreviousPageParam: (firstPage) => firstPage.previos ?? undefined,
-          getNextPageParam: (lastPage) => lastPage.next ?? undefined,
-        },
-      )
+      } = useInfiniteQuery({
+        queryKey:['projects'],
+        queryFn: ({ pageParam = url }) => fetchUrl(pageParam),
+        getPreviousPageParam: (firstPage) => firstPage?.previous || undefined,
+        getNextPageParam: (lastPage) => lastPage?.next || undefined,
+        
+})
 
     return (
             <Container title="About">
@@ -64,10 +63,33 @@ const router = useRouter()
                 
                 )}
                 <br/>
-                <div>
-                    <h1>INFINITE SCROLL</h1>
+                  {status === 'loading'? (<div>loading...</div>) : status === 'error' 
+                    ? (<div>error</div>): (
+                      <>
+                      {species.pages.map((pageData)=> {
+                            return pageData?.results.map((data,id)=> (
+                              <div key={id}>
+                                {data.name}
+                              </div>
+                            ))
+
+                            })}
+                       <h1>INFINITE SCROLL</h1>
+                      </>
+
+                    )}
+                <button
+                  onClick={() => fetchNextPage()}
+                  disabled={!hasNextPage || isFetchingNextPage}
+                >
+                  {isFetchingNextPage
+                    ? 'Loading more...'
+                    : hasNextPage
+                    ? 'Load More'
+                    : 'Nothing more to load'}
+                </button>
+                <div>{isFetching && !isFetchingNextPage ? 'Fetching...' : null}</div>
                 
-                </div>
                 </main>
             </Container>
     )
